@@ -40,6 +40,8 @@ async function fetchCountries(name) {
       throw new Error(MORE_MAX);
     }
 
+    console.log('To chto ', countries);
+
     return countries;
   } catch {
     error => console.error(error);
@@ -86,8 +88,10 @@ inputRef.addEventListener('input', event => {
 
   if (event.currentTarget.value === '') return clearAll();
 
-  const countries = debounceFetchCountries(event.currentTarget.value);
-  console.log(countries);
-
-  renderCountiesListItems(countries);
+  _.debounce(() => {
+    const countries = fetchCountries(event.currentTarget.value);
+    console.log(countries);
+    renderCountiesListItems(countries);
+  }),
+    MAX_CONTRIES;
 });
