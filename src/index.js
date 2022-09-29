@@ -17,81 +17,100 @@ const MAX_CONTRIES = 10;
 const MORE_MAX = 'More MAX';
 
 function clearAll() {
-  console.log('Clear');
+  console.log(countryListRef.children);
+  for (const child of countryListRef.children)
+    countryListRef.removeChild(child);
+  for (const child of countryInfoRef.children)
+    countryInfoRef.removeChild(child);
 }
 
-async function fetchCountries(name) {
-  try {
-    const response = await fetch(`https://restcountries.com/v3.1/name/${name}`);
-    console.log(name);
-
-    if (response.status === 404) {
-      Notiflix.Notify.failure('Oops, there is no country with that name');
-      throw new Error(response.status);
-    }
-
-    const countries = await response.json();
-
-    if (countries.length > MAX_CONTRIES) {
-      console.log('In max');
-      Notiflix.Notify.info(
-        'Too many matches found. Please enter a more specific name.'
-      );
-      throw new Error(MORE_MAX);
-    }
-
-    console.log('To chto ', countries);
-
-    return countries;
-  } catch {
-    error => console.error(error);
-  }
-}
-
-const debounceFetchCountries = _.debounce(fetchCountries, DEBOUNCE_DELAY);
+const fetchCountries = name => {
+  fetch(`https://restcountries.com/v3.1/name/${name}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log(data);
+      if (data.length > MAX_CONTRIES) {
+        throw new Error(MORE_MAX);
+      }
+      renderCountiesListItems(data);
+    })
+    .catch(error => {
+      if (error.message === '404') {
+        Notiflix.Notify.failure('Oops, there is no country with that name');
+      }
+      if (error.message === MORE_MAX) {
+        Notiflix.Notify.info(
+          'Too many matches found. Please enter a more specific name.'
+        );
+      }
+    });
+};
 
 function renderCountiesListItems(countries) {
   let markup = '';
-  const listOfCountriesRef = document.querySelector('.country-list');
-  listOfCountriesRef.style.listStyle = 'none';
-  const countryInfoRef = document.querySelector('.country-info');
+  const isOne = countries.length === 1;
 
-  if (countries.length === 1) {
-    clearAll();
+  countryListRef.style.listStyle = 'none';
+  countryListRef.style.margin = '0';
+  countryListRef.style.padding = '0';
+
+  clearAll();
+
+  const fontSize = isOne ? '48px' : '30px';
+
+  markup = countries
+    .map(
+      country =>
+        `<li style="margin-botton:100px;display:flex;align-items:center">
+    		<img style="display:block" src="${country.flags.svg}" alt="Flag of ${country.name.official}" width = 70 height = 35 />
+    		<h1 style="font-size:${fontSize};margin:0;margin-left:16px;font-weight:700">${country.name.official}</h1>
+    		</li>`
+    )
+    .join('');
+
+  countryListRef.insertAdjacentHTML('beforeend', markup);
+
+  if (isOne) {
     markup = countries
       .map(
         country =>
-          `<li style="margin-botton:100px;display:flex;align-items:center">
-				<img src="${country.flags.svg}" alt="Flag of ${country.name.official}" width = 100 height = 50 />
-				<h1 style="font-size:48px;margin:0;margin-left:16px;font-weight:700">${country.name.official}</h1>
-				</li>`
+          `<p style="fontSize:16px"><b style="fontSize: 16px; fontWeight: 500">Capital: </b>${
+            country.capital
+          }</p>
+					<p style="fontSize:16px"><b style="fontSize: 16px; fontWeight: 500">Population: </b>${
+            country.population
+          }</p>
+					<p style="fontSize:16px"><b style="fontSize: 16px; fontWeight: 500">Languages: </b>${Object.values(
+            country.languages
+          ).join(', ')}</p>`
       )
       .join('');
 
-    listOfCountriesRef.insertAdjacentHTML('beforeend', markup);
+    console.log(markup);
 
-    // markup = countries
-    //   .map(
-    //     country =>
-    //       `<li style="margin-botton:100px;display:flex;align-items:center">
-    // 		<img src="${country.flags.svg}" alt="Flag of ${country.name.official}" width = 100 height = 50 />
-    // 		<h1 style="font-size:48px;margin:0;margin-left:16px;font-weight:700">${country.name.official}</h1>
-    // 		</li>`
-    //   )
-    //   .join('');
-    // listOfCountriesRef.insertAdjacentHTML('beforeend', markup);
+    countryInfoRef.insertAdjacentHTML('beforeend', markup);
   }
 }
 
-inputRef.addEventListener('input', event => {
-  console.log('Value ', event.currentTarget.value);
+function normalizeName(name) {
+  return name.trim().toLowerCase();
+}
 
-  if (event.currentTarget.value === '') return clearAll();
-
+inputRef.addEventListener(
+  'input',
   _.debounce(() => {
-    const countries = fetchCountries(event.currentTarget.value);
-    console.log(countries);
-    renderCountiesListItems(countries);
-  }),
-    MAX_CONTRIES;
-});
+    let name = inputRef.value;
+    name = normalizeName(name);
+    inputRef.value = name;
+    console.log('Value ', name);
+
+    if (name === '') return clearAll();
+
+    fetchCountries(name);
+  }, DEBOUNCE_DELAY)
+);
