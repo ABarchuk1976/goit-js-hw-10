@@ -30,10 +30,10 @@ const fetchCountries = name => {
       return response.json();
     })
     .then(data => {
-      console.log(data);
       if (data.length > MAX_CONTRIES) {
         throw new Error(MORE_MAX);
       }
+
       renderCountiesListItems(data);
     })
     .catch(error => {
@@ -90,8 +90,6 @@ function renderCountiesListItems(countries) {
       )
       .join('');
 
-    console.log(markup);
-
     countryInfoRef.insertAdjacentHTML('beforeend', markup);
   }
 }
@@ -106,7 +104,6 @@ inputRef.addEventListener(
     let name = inputRef.value;
     name = normalizeName(name);
     inputRef.value = name;
-    console.log('Value ', name);
 
     if (name === '') return clearAll();
 
