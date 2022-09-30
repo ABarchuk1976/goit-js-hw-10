@@ -12,16 +12,13 @@ const inputRef = document.querySelector('#search-box');
 const countryListRef = document.querySelector('.country-list');
 const countryInfoRef = document.querySelector('.country-info');
 
-const DEBOUNCE_DELAY = 3000;
+const DEBOUNCE_DELAY = 300;
 const MAX_CONTRIES = 10;
 const MORE_MAX = 'More MAX';
 
 function clearAll() {
-  console.log(countryListRef.children);
-  for (const child of countryListRef.children)
-    countryListRef.removeChild(child);
-  for (const child of countryInfoRef.children)
-    countryInfoRef.removeChild(child);
+  countryListRef.innerHTML = '';
+  countryInfoRef.innerHTML = '';
 }
 
 const fetchCountries = name => {
@@ -41,9 +38,11 @@ const fetchCountries = name => {
     })
     .catch(error => {
       if (error.message === '404') {
+        clearAll();
         Notiflix.Notify.failure('Oops, there is no country with that name');
       }
       if (error.message === MORE_MAX) {
+        clearAll();
         Notiflix.Notify.info(
           'Too many matches found. Please enter a more specific name.'
         );
