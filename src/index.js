@@ -1,6 +1,5 @@
 import './css/styles.css';
-import debounce from 'debounce';
-const _ = require('lodash');
+import _debounce from 'debounce';
 import Notiflix from 'notiflix';
 
 Notiflix.Notify.init({
@@ -12,7 +11,7 @@ const inputRef = document.querySelector('#search-box');
 const countryListRef = document.querySelector('.country-list');
 const countryInfoRef = document.querySelector('.country-info');
 
-const DEBOUNCE_DELAY = 300;
+const DEBOUNCE_DELAY = 3000;
 const MAX_CONTRIES = 10;
 const MORE_MAX = 'More MAX';
 
@@ -33,7 +32,6 @@ const fetchCountries = name => {
       if (data.length > MAX_CONTRIES) {
         throw new Error(MORE_MAX);
       }
-
       renderCountiesListItems(data);
     })
     .catch(error => {
@@ -100,7 +98,7 @@ function normalizeName(name) {
 
 inputRef.addEventListener(
   'input',
-  _.debounce(() => {
+  _debounce(() => {
     let name = inputRef.value;
     name = normalizeName(name);
     inputRef.value = name;
