@@ -11,7 +11,7 @@ const inputRef = document.querySelector('#search-box');
 const countryListRef = document.querySelector('.country-list');
 const countryInfoRef = document.querySelector('.country-info');
 
-const DEBOUNCE_DELAY = 3000;
+const DEBOUNCE_DELAY = 300;
 const MAX_CONTRIES = 10;
 const MORE_MAX = 'More MAX';
 
