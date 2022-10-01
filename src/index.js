@@ -1,4 +1,3 @@
-import '../css/styles.css';
 import debounce from 'debounce';
 const _ = require('lodash');
 import Notiflix from 'notiflix';
