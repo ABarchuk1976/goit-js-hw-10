@@ -1,5 +1,5 @@
 import './css/styles.css';
-import _debounce from 'debounce';
+const _ = require('lodash');
 import Notiflix from 'notiflix';
 
 Notiflix.Notify.init({
@@ -98,7 +98,7 @@ function normalizeName(name) {
 
 inputRef.addEventListener(
   'input',
-  _debounce(() => {
+  _.debounce(() => {
     let name = inputRef.value;
     name = normalizeName(name);
     inputRef.value = name;
